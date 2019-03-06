@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/ckcd-sa/mluyo3414-go-http:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/ckcd-sa/mluyo3414-go-http:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: mluyo3414-go-http
+        chartPath: charts/mluyo3414-go-http
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/ckcd-sa/mluyo3414-go-http'
+          image.tag: '{{.DIGEST_HEX}}'
